@@ -1,0 +1,52 @@
+// This script is used to create an 8 by 8 grid of objects for a puzzle game using Unity3d
+// The script takes in account the screen-size parameters of the device and builds the grid accordingly
+// Thus, the script will build the grid correctly for any screen size in portrait mode
+using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+
+public class GameController : MonoBehaviour {
+	public GameObject gObject; // This game object is assigned within Unity3d and determines which object is used to create the grid of objects
+	private float camWidth, camHeight; // Float values to store the size of the camera
+	private float placeX, placeY; // Float values for x, y positions of new game objects
+	private Vector3 objPos; // A vector3 to hold the calculated position of a new object in the 8 x 8 grid
+	
+	// Use this for initialization
+	void Start () {
+		// With the screen space of the UI Canvas connected to the scene's camera, the screen size can be determined
+		// by the size of the camera
+		// These values can be stored in floats when the game starts and used later when determining object positions
+		camHeight = 2f * Camera.main.orthographicSize;
+		camWidth = camHeight * Camera.main.aspect;
+	}
+
+	// This script creates an 8 x 8 grid of game objects
+	// The top left of the grid is defined as (0, 0); x values control column position and y values control row position
+	// It starts at the bottom left of the grid and moves up, column by column
+	public void CreateBoard () {
+		// Scan through all 8 columns of the gridboard (x-positions)
+		x = 0; 
+		while (x < 8) {
+			y = 7; //Start at the bottom of each column and go up
+			while (y > -1) { // Scan through the y-positions (rows) of each column
+				CreateObject (x, y); // Create an object at the specified grid position
+				y -= 1;
+			}
+			x += 1;
+		}
+	}
+	
+	// This function creates a new object at a given grid position and appropriate position on the device's screen
+	public void CreateObject (int posX, int posY) {
+		// The math for the object position works as follows:
+		// The camera width is divided by 8 to determine the step size between two objects on the grid
+		// The grid is generated around the unity coordinates (0, 0), which is equal distant from both sides of the screen
+		// The object position thus offset by half the camera width, which creates the correct position for x = 0 or y = 0
+		// For x (or y) > 0, the x (or y) position is shifted by the correct number of steps (camWidth/8)
+		placeX = ((camWidth/8) * (posX+0.5f)) - (camWidth/2); //calculate x position
+		placeY = (-1)*((camWidth/8) * (posY+0.5f)) + (camWidth/2); //calculate y position
+		objPos = new Vector3(placeX, placeY, 0.0f); //Create new position with calculated x,y values
+		GameObject newObject = Instantiate (gObject, objPos, Quaternion.identity) as GameObject;
+	}
+
+}
